@@ -1,18 +1,17 @@
-from sqlite_dbint import SqliteDatabase
+from sqlite_dbint import SqliteDatabaseInterface
 
 
-db = SqliteDatabase("test.db")
+db = SqliteDatabaseInterface("test.db")
 
-db.create_table("trial", {"id": "integer PRIMARY KEY", "name": "text"})
-#db.recreate_table("trial", {"id": "integer PRIMARY KEY", "name": "text"})
+db.create_table("trial", [("id", "integer PRIMARY KEY"), ("name", "text")])
 #db.drop_table("trial")
-entry = {"id": 1, "name": "JOHN"}
-db.insert_entry("trial", entry)
-entry = {"id": 2, "name": "ADAM"}
-db.insert_entry("trial", entry)
-db.select_fields("trial", ["id", "=", "1"], ["name"])
+record = (1, "JOHN")
+db.insert_record("trial", record)
+record = (2, "ADAM")
+db.insert_record("trial", record)
+#db.select_values("trial", ["id", "=", "1"], ["name"])
 #db.update_field_value("trial", 1, "name", "ADAM")
-entries = db.select_fields("trial")
+#records = db.select_values("trial")
 #print(db.is_table("trial"))
-print(db.count_entries(entries))
-db.drop_all_tables()
+#print(db.count_records(records))
+#db.drop_all_tables()

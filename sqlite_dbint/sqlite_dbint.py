@@ -2,7 +2,7 @@ import sqlite3
 from sqlite3 import Error
 import sys
 
-class SqliteDatabase:
+class SqliteDatabaseInterface:
     def __init__(self, database_name):
         self.connection = self.connect(database_name)
 
@@ -53,24 +53,15 @@ class SqliteDatabase:
         insert_entry_cmd = "INSERT INTO " + table_name + " VALUES(" + ", ".join(entry_values) + ")"
         self.execute(insert_entry_cmd, "commit")
 
-    def update_field_value(self, table_name, entry_id, field_key, field_value):
-        update_field_value_cmd = 'UPDATE ' + table_name + ' SET ' + field_key + ' = ' + self.format_field_value(field_value) + ' where id = ' + self.format_field_value(entry_id)
+    def delete_entry(self, table_name, condition):
+        delete_entry_cmd = "DELETE FROM " + table_name + " " + self.format_condition(condition)
+
+    def update_field_value(self, table_name, condition, field_key, field_value):
+        update_field_value_cmd = "UPDATE " + table_name + " SET " + field_key + " = " + self.format_field_value(field_value) + " " + self.format_condition(condition)
         self.execute(update_field_value_cmd, "commit")
 
     def select_fields(self, table_name, condition=None, field_keys=all):
-        if condition == None:
-            condition = ""
-        elif isinstance(condition, list):
-            condition = "where " + " ".join(condition)
-        else:
-            TypeError
-        if field_keys==all:
-            field_keys = "*"
-        elif isinstance(field_keys, list):
-            field_keys = ", ".join(field_keys)
-        else:
-            TypeError
-        select_cmd = "SELECT " + field_keys + " FROM " + table_name + " " + condition
+        select_cmd = "SELECT " + self.format_field_keys(field_keys) + " FROM " + table_name + " " + self.format_condition(condition)
         data = self.execute(select_cmd, "fetch")
         return data
 
@@ -90,6 +81,14 @@ class SqliteDatabase:
     def count_entries(self, entries):
         return len(entries)
 
+    def format_field_keys(self, field_keys):
+        if field_keys==all:
+            return "*"
+        elif isinstance(field_keys, list):
+            return ", ".join(field_keys)
+        else:
+            TypeError
+
     def format_field_value(self, field_value):
         if isinstance(field_value, int):
             return str(field_value)
@@ -97,3 +96,12 @@ class SqliteDatabase:
             return '"' + field_value + '"'
         else:
             raise TypeError
+
+    def format_condition(self, condition):
+       if condition == None:
+           return ""
+       elif isinstance(condition, list):
+           condition[-1] = self.format_field_value(condition[-1])
+           return "where " + " ".join(condition)
+       else:
+           raise TypeError

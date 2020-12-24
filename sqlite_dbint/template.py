@@ -3,15 +3,17 @@ from sqlite_dbint import SqliteDatabaseInterface
 
 db = SqliteDatabaseInterface("test.db")
 
-db.create_table("trial", [("id", "integer PRIMARY KEY"), ("name", "text")])
+db.drop_all_tables()
 #db.drop_table("trial")
+
+table_name = "trial"
+db.create_table(table_name, [("id", "integer PRIMARY KEY"), ("name", "text")])
 record = (1, "JOHN")
-db.insert_record("trial", record)
+db.insert_record(table_name, record)
 record = (2, "ADAM")
-db.insert_record("trial", record)
-#db.select_values("trial", ["id", "=", "1"], ["name"])
-#db.update_field_value("trial", 1, "name", "ADAM")
-#records = db.select_values("trial")
-#print(db.is_table("trial"))
-#print(db.count_records(records))
-#db.drop_all_tables()
+db.insert_record(table_name, record)
+db.select_values(table_name, ["id", "=", "1"], ["name"])
+db.update_values(table_name, "ADAM", ["id", "=", 1], ["name"])
+records = db.select_values(table_name)
+print(db.is_table(table_name))
+print(db.count_records(table_name))

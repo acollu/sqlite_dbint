@@ -1,4 +1,4 @@
-from errors import InvalidConditionFormat, InvalidConditionSequence, InvalidLogicalOperator, InvalidComparisonMember, InvalidConditionalOperator
+from .errors import InvalidConditionFormat, InvalidConditionSequence, InvalidLogicalOperator, InvalidComparisonMember, InvalidConditionalOperator
 
 
 class FieldFormatter:

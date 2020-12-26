@@ -1,6 +1,6 @@
 import sys
-from sqlite3_interface import Sqlite3Interface
-from field_formatter import FieldFormatter as ff
+from .sqlite3_interface import Sqlite3Interface
+from .field_formatter import FieldFormatter as ff
 
 # Terminology:
 # record: row

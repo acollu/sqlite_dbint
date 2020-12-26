@@ -71,7 +71,7 @@ class SqliteDatabaseInterface:
         self.db.execute(insert_record_cmd, "commit")
 
     def __insert_records(self, table_name, records):
-        insert_records_cmd = "INSERT INTO " + ff.format_table_name(table_name) + " VALUES(?, ?)"
+        insert_records_cmd = "INSERT INTO " + ff.format_table_name(table_name) + " VALUES(" + ",".join(["?" for i in range(0, len(records[0]))]) + ")"
         self.db.execute(insert_records_cmd, "commit_many", records)
 
     def delete_record(self, table_name, condition):

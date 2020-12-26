@@ -68,7 +68,7 @@ class SqliteDatabaseInterface:
         data = self.db.execute(select_cmd, "fetch")
         return data
 
-    def replace_data(self, table_name, data_old, data_new, condition=None, attributes=all):
+    def replace_data(self, table_name, data_old, data_new, attributes=all):
         record_values = [ff.format_value(value) for value in record]
         replace_data_cmd = "REPLACE INTO " + table_name + "(" + ff.format_attributes(attributes) + ") VALUES(" + ff.format_values([data_old, data_new]) + ")"
         self.db.execute(replace_data_cmd, "commit")

@@ -32,6 +32,8 @@ class FieldFormatter:
     def format_value(value):
         if isinstance(value, int):
             return str(value)
+        elif isinstance(value, float):
+            return str(value)
         elif isinstance(value, str):
             return '"' + value + '"'
         else:

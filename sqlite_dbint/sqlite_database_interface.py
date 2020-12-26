@@ -1,6 +1,6 @@
 import sys
-from .sqlite3_interface import Sqlite3Interface
-from .field_formatter import FieldFormatter as ff
+from sqlite3_interface import Sqlite3Interface
+from field_formatter import FieldFormatter as ff
 
 # Terminology:
 # record: row
@@ -23,22 +23,37 @@ class SqliteDatabaseInterface:
         if table_name not in existing_table_names:
             return False
         record_format_keys = [pair[0] for pair in record_format]  
-        records = self.select_values(table_name)
-        if record_format_keys == records.keys():
-            return True
-        print(record_format_keys, records.keys())
+        record_format_key_types = [pair[1] for pair in record_format]  
+        table_attributes = self.get_attributes(table_name)
+        table_attribute_types = self.get_attribute_types(table_name=table_name, add_primary_key_flag=True)
+        return record_format_keys == table_attributes and record_format_key_types == table_attribute_types
+
+    def get_attributes(self, table_name):
+        table_info = self.db.execute('PRAGMA table_info(' + ff.format_table_name(table_name) + ')', "fetch")
+        attributes = [attribute_info[1] for attribute_info in table_info]
+        return attributes
+
+    def get_attribute_types(self, table_name, add_primary_key_flag=False):
+        table_info = self.db.execute('PRAGMA table_info(' + ff.format_table_name(table_name) + ')', "fetch")
+        attribute_types = [attribute_info[2] for attribute_info in table_info]
+        if add_primary_key_flag:
+            for i, attribute_info in enumerate(table_info):
+                if attribute_info[5] == 1:
+                    attribute_types[i] += " PRIMARY KEY"
+                    break
+        return attribute_types
 
     def create_table(self, table_name, record_format, records=[], overwrite=False):
         if self.is_table(table_name, record_format) and not overwrite:
             return
         self.drop_table(table_name)
-        table_structure = ", ".join([" ".join(pair) for pair in record_format])
-        create_table_cmd = "CREATE TABLE " + table_name + "(" + table_structure + ")"
+        table_structure = ", ".join([ff.format_attribute(pair[0]) + " " + pair[1] for pair in record_format])
+        create_table_cmd = "CREATE TABLE " + ff.format_table_name(table_name) + "(" + table_structure + ")"
         self.db.execute(create_table_cmd, "commit")
         self.__insert_records(table_name, records)
 
     def drop_table(self, table_name):
-        drop_table_cmd = "DROP TABLE if exists " + table_name
+        drop_table_cmd = "DROP TABLE if exists " + ff.format_table_name(table_name)
         self.db.execute(drop_table_cmd, "commit")
 
     def drop_all_tables(self):
@@ -52,22 +67,23 @@ class SqliteDatabaseInterface:
 
     def insert_record(self, table_name, record):
         record_values = [ff.format_value(value) for value in record]
-        insert_record_cmd = "INSERT INTO " + table_name + " VALUES(" + ", ".join(record_values) + ")"
+        insert_record_cmd = "INSERT INTO " + ff.format_table_name(table_name) + " VALUES(" + ", ".join(record_values) + ")"
         self.db.execute(insert_record_cmd, "commit")
 
     def __insert_records(self, table_name, records):
-        insert_records_cmd = "INSERT INTO " + table_name + " VALUES(?, ?)"
+        insert_records_cmd = "INSERT INTO " + ff.format_table_name(table_name) + " VALUES(?, ?)"
         self.db.execute(insert_records_cmd, "commit_many", records)
 
     def delete_record(self, table_name, condition):
-        delete_record_cmd = "DELETE FROM " + table_name + " " + ff.format_condition(condition)
+        delete_record_cmd = "DELETE FROM " + ff.format_table_name(table_name) + " " + ff.format_condition(condition)
 
     def update_values(self, table_name, value, condition=None, attributes=all):
-        update_value_cmd = "UPDATE " + table_name + " SET (" + ff.format_attributes(attributes) + ") = " + ff.format_value(value) + " " + ff.format_condition(condition)
+        update_value_cmd = "UPDATE " + ff.format_table_name(table_name) + " SET (" + ff.format_attributes(attributes) + ") = " + ff.format_value(value) + " " + ff.format_condition(condition)
         self.db.execute(update_value_cmd, "commit")
 
     def select_values(self, table_name, condition=None, attributes=all, order_attributes=None, order_type=""):
         attributes = ff.format_attributes(attributes)
+        table_name = ff.format_table_name(table_name)
         condition = ff.format_condition(condition)
         order = ff.format_order(order_attributes, order_type)
         select_cmd = "SELECT " + attributes + " FROM " + table_name + " " + condition + " " + order
@@ -76,7 +92,7 @@ class SqliteDatabaseInterface:
 
     def replace_data(self, table_name, data_old, data_new, attributes=all):
         record_values = [ff.format_value(value) for value in record]
-        replace_data_cmd = "REPLACE INTO " + table_name + "(" + ff.format_attributes(attributes) + ") VALUES(" + ff.format_values([data_old, data_new]) + ")"
+        replace_data_cmd = "REPLACE INTO " + ff.format_table_name(table_name) + "(" + ff.format_attributes(attributes) + ") VALUES(" + ff.format_values([data_old, data_new]) + ")"
         self.db.execute(replace_data_cmd, "commit")
 
     def get_table(self, table_name):

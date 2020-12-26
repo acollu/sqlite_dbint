@@ -18,12 +18,18 @@ class SqliteDatabaseInterface:
         table_names = [str(table_name[0]) for table_name in table_names]
         return table_names
 
-    def is_table(self, table_name):
+    def is_table(self, table_name, record_format):
         existing_table_names = self.get_table_names()
-        return table_name in existing_table_names
+        if table_name not in existing_table_names:
+            return False
+        record_format_keys = [pair[0] for pair in record_format]  
+        records = self.select_values(table_name)
+        if record_format_keys == records.keys():
+            return True
+        print(record_format_keys, records.keys())
 
     def create_table(self, table_name, record_format, records=[], overwrite=False):
-        if self.is_table(table_name) and not overwrite:
+        if self.is_table(table_name, record_format) and not overwrite:
             return
         self.drop_table(table_name)
         table_structure = ", ".join([" ".join(pair) for pair in record_format])

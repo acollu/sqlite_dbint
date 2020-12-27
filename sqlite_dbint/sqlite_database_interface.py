@@ -112,6 +112,9 @@ class SqliteDatabaseInterface:
     def get_table(self, table_name):
         return self.select_values(table_name)
 
+    def count_attributes(self, table_name):
+        return len(self.get_attributes(table_name))
+
     def count_records(self, table_name):
         records = self.select_values(table_name)
         return len(records)

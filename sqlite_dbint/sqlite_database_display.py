@@ -40,6 +40,6 @@ class SqliteDatabaseDisplay:
             line += "|"
         print(line)
 
-display = SqliteDatabaseDisplay("test.db")
-display.list_table_names()
-display.display_table(table_name="trial", cell_width=30)
+#display = SqliteDatabaseDisplay("test.db")
+#display.list_table_names()
+#display.display_table(table_name="trial", cell_width=30)

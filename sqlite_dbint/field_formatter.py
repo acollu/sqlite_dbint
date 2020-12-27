@@ -8,14 +8,14 @@ class FieldFormatter:
     @staticmethod
     def format_table_name(table_name):
         if isinstance(table_name, str):
-            return "'" + table_name + "'"
+            return "`" + table_name + "`"
         else:
             TypeError
 
     @staticmethod
     def format_attribute(attribute):
         if isinstance(attribute, str):
-            return "'" + attribute + "'"
+            return "`" + attribute + "`"
         else:
             TypeError
 

@@ -19,15 +19,12 @@ class Sqlite3Interface:
     def execute(self, cmd, cmd_type='read', data=None):
         cursor = self.connection.cursor()
         if cmd_type == "commit":
-            print(cmd)
             cursor.execute(cmd)
             self.connection.commit()
         elif cmd_type == "commit_many" and data is not None:
-            print(cmd)
             cursor.executemany(cmd, data)
             self.connection.commit()
         elif cmd_type == "fetch":
-            print(cmd)
             cursor.execute(cmd)
             data = cursor.fetchall()
             return data

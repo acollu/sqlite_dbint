@@ -43,6 +43,18 @@ class SqliteDatabaseInterface:
                     break
         return attribute_types
 
+    def get_primary_attribute(self, table_name):
+        table_info = self.db.execute('PRAGMA table_info(' + ff.format_table_name(table_name) + ')', "fetch")
+        for i, attribute_info in enumerate(table_info):
+            if attribute_info[5] == 1:
+                return attribute_info[1]
+
+    def get_primary_attribute_position(self, table_name):
+        table_info = self.db.execute('PRAGMA table_info(' + ff.format_table_name(table_name) + ')', "fetch")
+        for i, attribute_info in enumerate(table_info):
+            if attribute_info[5] == 1:
+                return i
+
     def create_table(self, table_name, record_format, records=[], overwrite=False):
         if self.is_table(table_name, record_format) and not overwrite:
             return
